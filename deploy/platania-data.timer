@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh Platania after A-share market close
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 17:30:00 Asia/Shanghai
+Persistent=true
+RandomizedDelaySec=300
+Unit=platania-data.service
+
+[Install]
+WantedBy=timers.target
+

@@ -2,7 +2,10 @@ services:
   platania:
     build: .
     ports:
-      - "8000:8000"
+      - "8010:8010"
+    env_file:
+      - path: .env
+        required: false
     volumes:
       - market-cache:/app/data/cache
     restart: unless-stopped

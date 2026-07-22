@@ -1,0 +1,19 @@
+[Unit]
+Description=Refresh Platania daily market cache
+After=network-online.target platania-api.service
+
+[Service]
+Type=oneshot
+User=platania
+Group=www-data
+WorkingDirectory=/opt/platania/current
+EnvironmentFile=/etc/platania/platania.env
+ExecStart=/opt/platania/venv/bin/python scripts/refresh_market.py --interval 2
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=true
+PrivateTmp=true
+ReadWritePaths=/opt/platania/shared/data /var/log/platania
+StandardOutput=append:/var/log/platania/data.log
+StandardError=append:/var/log/platania/data-error.log
+

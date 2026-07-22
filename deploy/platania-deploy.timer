@@ -1,0 +1,13 @@
+[Unit]
+Description=Check GitHub for Platania updates
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=10min
+RandomizedDelaySec=60
+Persistent=true
+Unit=platania-deploy.service
+
+[Install]
+WantedBy=timers.target
+

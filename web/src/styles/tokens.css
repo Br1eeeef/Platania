@@ -1,0 +1,38 @@
+:root {
+  font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  color: #182230;
+  background: #f3f5f7;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --surface-subtle: #f8fafb;
+  --sidebar: #101827;
+  --sidebar-active: #233047;
+  --text: #182230;
+  --muted: #667085;
+  --faint: #98a2b3;
+  --border: #dde2e8;
+  --positive: #c2413a;
+  --negative: #138a63;
+  --accent: #b7791f;
+  --blue: #2563a6;
+  --purple: #7c3f8c;
+  --danger-bg: #fff2f0;
+  --demo-bg: #fff7e6;
+  --demo-border: #e5b85c;
+  --live-bg: #eaf7f2;
+  --shadow: 0 1px 2px rgb(16 24 40 / 7%);
+  --radius: 5px;
+  --sidebar-width: 230px;
+}
+
+:root[data-color-mode='green-up'] {
+  --positive: #138a63;
+  --negative: #c2413a;
+}
+
+:root[data-density='dense'] {
+  --row-height: 46px;
+}
+

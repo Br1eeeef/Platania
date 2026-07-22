@@ -1,2 +1,0 @@
-"""Platania backend package."""
-

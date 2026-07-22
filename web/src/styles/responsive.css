@@ -1,0 +1,72 @@
+@media (max-width: 1180px) {
+  .stock-layout { grid-template-columns: 150px minmax(0, 1fr); }
+  .signal-panel { grid-column: 1 / -1; display: grid; grid-template-columns: 140px 100px 1fr 1fr 180px; align-items: start; gap: 14px; border-top: 1px solid var(--border); }
+  .signal-panel dl, .signal-panel h3, .signal-panel p, .signal-panel ul, .signal-panel .button { margin-top: 0; }
+  .metric-grid.report { grid-template-columns: repeat(4, 1fr); }
+  .metric-grid.report > div:nth-child(4) { border-right: 0; }
+}
+
+@media (max-width: 940px) {
+  :root { --sidebar-width: 196px; }
+  .dashboard-grid, .ai-layout { grid-template-columns: 1fr; }
+  .strategy-grid { grid-template-columns: 1fr; }
+  .strategy-card { min-height: 0; }
+  .summary-band { grid-template-columns: repeat(2, 1fr); }
+  .membership-steps { grid-template-columns: repeat(2, 1fr); }
+  .membership-steps > div:nth-child(2) { border-right: 0; }.membership-steps > div:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+  .summary-band > div:nth-child(2) { border-right: 0; }.summary-band > div:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+  .stock-layout { grid-template-columns: 1fr; }
+  .stock-left { display: flex; align-items: center; gap: 5px; overflow-x: auto; }
+  .stock-left h2 { flex: 0 0 auto; margin: 0 8px 0 0; }.stock-left > button { width: auto; flex: 0 0 auto; margin: 0; }.watch-action { flex: 0 0 auto; margin: 0 0 0 auto; padding: 0 0 0 12px; border: 0; }
+  .chart-workspace { border: 0; border-top: 1px solid var(--border); }
+  .signal-panel { grid-column: auto; grid-template-columns: repeat(2, 1fr); }
+  .signal-panel .button { align-self: end; }
+}
+
+@media (max-width: 720px) {
+  .app-shell { display: block; padding-bottom: 62px; }
+  .sidebar { display: none; }
+  .main-content { min-height: calc(100vh - 62px); }
+  .mobile-header { position: sticky; top: 0; z-index: 18; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; border-bottom: 1px solid #273247; color: #fff; background: var(--sidebar); }
+  .mobile-header .brand { gap: 8px; }.mobile-header .brand-mark { width: 30px; height: 30px; flex-basis: 30px; font-size: 18px; }
+  .bottom-nav { position: fixed; inset: auto 0 0; z-index: 30; height: 62px; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid #d6dce3; background: #fff; }
+  .bottom-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #7b8492; font-size: 9px; }
+  .bottom-nav a.active { color: #1d5f91; box-shadow: inset 0 2px var(--accent); }
+  .page { padding: 20px 14px 30px; }
+  .page-header { align-items: flex-start; }.page-header h1 { font-size: 22px; }.page-header p:not(.eyebrow) { font-size: 11px; }
+  .page-header > .button { flex: 0 0 auto; }
+  .summary-band { margin-top: 13px; }.summary-band > div { padding: 13px; }.summary-band strong { font-size: 16px; }
+  .instrument-list { grid-template-columns: 1fr; }
+  .market-lanes { grid-template-columns: repeat(2, 1fr); }.market-lanes span:nth-child(2) { border-right: 0; }.market-lanes span:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
+  .stock-header { align-items: flex-start; padding: 17px 14px 13px; }.stock-page > .disclaimer { margin: 0 14px 13px; }
+  .data-badge small { display: none; }.data-badge div { text-align: left; }
+  .stock-left { padding: 10px 14px; }.stock-left h2, .watch-action { display: none; }
+  .chart-workspace { padding: 13px 0 0; }.chart-toolbar, .indicator-toggles { padding: 0 14px; }.chart-toolbar { overflow-x: auto; }.segmented { flex: 0 0 auto; }
+  .indicator-toggles { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }.indicator-toggles label { flex: 0 0 auto; }
+  .price-chart { height: 390px; }
+  .technical-strip { grid-template-columns: repeat(3, 1fr); margin: 4px 0 0; }.technical-strip > div { border-bottom: 1px solid var(--border); }.technical-strip > div:nth-child(3) { border-right: 0; }
+  .signal-panel { grid-template-columns: 1fr 1fr; padding: 16px 14px; }.signal-panel > h3, .signal-panel > ul, .signal-panel > p { grid-column: 1 / -1; }
+  .metric-grid.report { grid-template-columns: repeat(2, 1fr); }.metric-grid.report > div:nth-child(2n) { border-right: 0; }.metric-grid.report > div { border-bottom: 1px solid var(--border); }
+  .usage-grid, .membership-grid { grid-template-columns: 1fr; }
+  .spec-summary { grid-template-columns: 1fr; }.spec-summary div { border-right: 0; border-bottom: 1px solid var(--border); }
+  .parameter-editor { flex-direction: column; }.parameter-editor label { grid-template-columns: 1fr 80px 14px; }
+  .spec-actions { align-items: stretch; flex-direction: column; }.spec-actions .button { width: 100%; }
+  .welcome-nav { padding: 0 16px; }.welcome-nav nav > a:first-child { display: none; }
+  .welcome-hero { height: 72vh; min-height: 520px; }.hero-content { padding: 15vh 18px 0; }.hero-content h1 { font-size: 49px; }.hero-content > p:not(.eyebrow) { font-size: 16px; }.hero-content > div { align-items: stretch; flex-direction: column; max-width: 250px; }
+  .welcome-capabilities { grid-template-columns: 1fr; }.welcome-capabilities article { padding: 20px 18px; border-right: 0; border-bottom: 1px solid #2a3547; }
+  .membership-info > main { padding: 30px 0; }.membership-info h1 { font-size: 30px; }.membership-steps { grid-template-columns: 1fr; }.membership-steps > div { border-right: 0; border-bottom: 1px solid var(--border); }.membership-steps > div:nth-child(2) { border-right: 0; }
+  .contact-band { grid-template-columns: auto 1fr; }.contact-band .button { grid-column: 1 / -1; width: 100%; }
+  .admin-form { grid-template-columns: 1fr; }.admin-form > * { grid-column: 1 !important; }
+  .audit-list article { grid-template-columns: 80px 1fr; }.audit-list time, .audit-list code { grid-column: 2; }
+  .notification-list article { grid-template-columns: 28px 1fr; }.notification-list time { grid-column: 2; }
+}
+
+@media (max-width: 420px) {
+  .page-header { flex-direction: column; gap: 10px; }
+  .stock-header { flex-direction: column; gap: 12px; }
+  .quote { gap: 8px; }
+  .price-chart { height: 350px; }
+  .signal-panel { grid-template-columns: 1fr; }.signal-panel > * { grid-column: 1 !important; }
+  .inline-form { align-items: stretch; flex-direction: column; }.inline-form select { min-width: 0; width: 100%; }
+  .metric-grid.report { grid-template-columns: 1fr 1fr; }
+}

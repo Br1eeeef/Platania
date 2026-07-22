@@ -1,6 +1,1 @@
-fastapi>=0.115,<1.0
-uvicorn[standard]>=0.32,<1.0
-
-# Optional market-data provider. Install separately on low-memory hosts when refresh is needed.
-# akshare>=1.16
-
+-r api/requirements.txt

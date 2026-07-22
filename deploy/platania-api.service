@@ -1,0 +1,26 @@
+[Unit]
+Description=Platania FastAPI service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=platania
+Group=www-data
+WorkingDirectory=/opt/platania/current
+EnvironmentFile=/etc/platania/platania.env
+ExecStart=/opt/platania/venv/bin/python -m uvicorn api.app.main:app --host 127.0.0.1 --port 8010 --workers 1 --proxy-headers
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/platania/shared/data /var/log/platania
+StandardOutput=append:/var/log/platania/api.log
+StandardError=append:/var/log/platania/api-error.log
+
+[Install]
+WantedBy=multi-user.target
+

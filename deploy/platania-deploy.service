@@ -1,0 +1,12 @@
+[Unit]
+Description=Atomically deploy latest Platania main branch
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/platania/repository/deploy/deploy.sh
+Nice=10
+StandardOutput=append:/var/log/platania/deploy.log
+StandardError=append:/var/log/platania/deploy-error.log
+

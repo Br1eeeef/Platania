@@ -1,20 +1,30 @@
-from backend.app.data import generate_demo_bars
-from backend.app.strategies import STRATEGIES, evaluate_strategy, score_latest
+from __future__ import annotations
+
+from datetime import timedelta
+
+import pandas as pd
+import pytest
+
+from api.app.models.strategy import SignalState
+from api.app.strategies import MeanReversionStrategy, TrendMomentumStrategy, VolumeBreakoutStrategy
 
 
-def test_every_strategy_returns_aligned_series() -> None:
-    bars = generate_demo_bars("300750", 360)
-    for strategy in STRATEGIES:
-        result = evaluate_strategy(bars, strategy)
-        assert len(result.positions) == len(bars)
-        assert set(result.positions).issubset({0, 1})
-        assert all(len(series) == len(bars) for series in result.indicators.values())
+@pytest.mark.parametrize("strategy", [TrendMomentumStrategy(), VolumeBreakoutStrategy(), MeanReversionStrategy()])
+def test_strategy_returns_aligned_targets(strategy, demo_frame: pd.DataFrame, benchmark_frame: pd.DataFrame) -> None:
+    result = strategy.evaluate(demo_frame, benchmark_frame)
+    assert len(result.frame) == len(demo_frame)
+    assert result.frame["target_position"].between(0, 1).all()
+    assert set(result.frame["signal_event"].unique()).issubset({"", "entry", "exit"})
+    assert result.signal.state in set(SignalState)
+    assert result.signal.reasons
 
 
-def test_latest_score_stays_in_public_range() -> None:
-    bars = generate_demo_bars("600036", 360)
-    result = evaluate_strategy(bars, "trend")
-    score = score_latest(bars, result)
-    assert 0 <= score["score"] <= 100
-    assert score["rating"] in {"强势", "关注", "中性", "弱势"}
-
+def test_future_bar_cannot_change_historical_targets(demo_frame: pd.DataFrame, benchmark_frame: pd.DataFrame) -> None:
+    strategy = TrendMomentumStrategy()
+    baseline = strategy.evaluate(demo_frame, benchmark_frame).frame["target_position"]
+    future = demo_frame.iloc[-1].copy()
+    future["date"] = demo_frame.iloc[-1]["date"].to_pydatetime() + timedelta(days=1)
+    future["open"] = future["high"] = future["low"] = future["close"] = float(future["close"]) * 10
+    extended = pd.concat([demo_frame, pd.DataFrame([future])], ignore_index=True)
+    rerun = strategy.evaluate(extended, benchmark_frame).frame["target_position"].iloc[:-1]
+    pd.testing.assert_series_equal(baseline.reset_index(drop=True), rerun.reset_index(drop=True))
