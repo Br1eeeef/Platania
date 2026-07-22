@@ -1,0 +1,12 @@
+services:
+  platania:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - market-cache:/app/data/cache
+    restart: unless-stopped
+
+volumes:
+  market-cache:
+
