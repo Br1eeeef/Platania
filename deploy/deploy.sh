@@ -39,6 +39,12 @@ fi
 
 cd "$RELEASE/web"
 export NODE_OPTIONS=--max-old-space-size=512
+if [[ -f /etc/platania/web.env ]]; then
+  set -a
+  # Contains browser-safe VITE_ values only; never put server secrets in this file.
+  source /etc/platania/web.env
+  set +a
+fi
 pnpm install --frozen-lockfile --prod=false --store-dir "$APP_ROOT/pnpm-store"
 pnpm build
 echo "$TARGET_SHA" > "$RELEASE/.release-sha"

@@ -10,8 +10,9 @@
 - `/opt/platania/shared/data`：持久行情缓存
 - `/opt/platania/venv`：共享 Python venv
 - `/etc/platania/platania.env`：服务端环境变量，root 拥有，权限 `600`
+- `/etc/platania/web.env`：仅包含浏览器安全的 `VITE_SUPABASE_URL` 与 Publishable Key，供生产构建读取
 
-服务器地址、端口、用户和域名写在你本机被忽略的 `deploy/server.env`；任何地方都不要保存服务器密码。DeepSeek/Supabase Secret 只写服务器的 `/etc/platania/platania.env`。
+服务器地址、端口、用户和域名写在你本机被忽略的 `deploy/server.env`；任何地方都不要保存服务器密码。DeepSeek/Supabase Secret 只写服务器的 `/etc/platania/platania.env`，绝不能写入 `/etc/platania/web.env`。
 
 ## 首次安装概览
 
