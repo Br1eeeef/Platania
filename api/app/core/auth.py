@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-import jwt
+import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -32,17 +32,26 @@ def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(bear
         )
     if credentials is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="需要登录")
+    token = credentials.credentials
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "apikey": settings.supabase_secret_key,
+        "User-Agent": "Platania-API/0.2",
+    }
     try:
-        payload = jwt.decode(
-            credentials.credentials,
-            settings.supabase_jwt_secret,
-            algorithms=["HS256"],
-            audience="authenticated",
-            options={"require": ["exp", "sub"]},
-        )
-    except jwt.PyJWTError as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="登录会话无效或已过期") from exc
-    return UserContext(id=str(payload["sub"]), email=payload.get("email"), access_token=credentials.credentials)
+        with httpx.Client(timeout=httpx.Timeout(10, connect=5)) as client:
+            response = client.get(f"{settings.supabase_url.rstrip('/')}/auth/v1/user", headers=headers)
+    except httpx.RequestError as exc:
+        raise HTTPException(status_code=503, detail="会员认证服务暂时不可用") from exc
+    if response.status_code in {401, 403}:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="登录会话无效或已过期")
+    try:
+        response.raise_for_status()
+        payload = response.json()
+        user_id = str(payload["id"])
+    except (httpx.HTTPError, KeyError, ValueError) as exc:
+        raise HTTPException(status_code=503, detail="会员认证服务响应异常") from exc
+    return UserContext(id=user_id, email=payload.get("email"), access_token=token)
 
 
 def active_member(user: UserContext = Depends(current_user)) -> UserContext:

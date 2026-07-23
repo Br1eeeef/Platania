@@ -57,7 +57,7 @@ class Settings(BaseSettings):
 
     @property
     def supabase_enabled(self) -> bool:
-        return bool(self.supabase_url and self.supabase_jwt_secret and self.supabase_secret_key)
+        return bool(self.supabase_url and self.supabase_secret_key)
 
     @property
     def deepseek_enabled(self) -> bool:
