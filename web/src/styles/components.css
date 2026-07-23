@@ -222,6 +222,7 @@
 .welcome-nav nav { display: flex; align-items: center; gap: 18px; font-size: 11px; }
 .welcome-hero { position: relative; height: min(780px, 78vh); min-height: 540px; overflow: hidden; }
 .hero-chart { position: absolute; inset: 0; opacity: .48; }.hero-chart .price-chart { height: 100%; }
+.hero-market-visual { position: absolute; inset: 0; background: #101a2a; }.hero-market-visual svg { width: 100%; height: 100%; opacity: .62; }.hero-grid { fill: none; stroke: #2a394c; stroke-width: 1; }.hero-average-line { fill: none; stroke: #7990a9; stroke-width: 2; }.hero-price-line { fill: none; stroke: #d29a3a; stroke-width: 3; }
 .hero-overlay { position: absolute; inset: 0; background: rgb(7 13 23 / 74%); }
 .hero-content { position: relative; z-index: 2; max-width: 760px; padding: 14vh 7vw 0; }
 .hero-content h1 { margin-top: 12px; font-family: Georgia, serif; font-size: 68px; font-weight: 500; }
