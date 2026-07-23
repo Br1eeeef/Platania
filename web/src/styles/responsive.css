@@ -63,6 +63,7 @@
   .admin-form { grid-template-columns: 1fr; }.admin-form > * { grid-column: 1 !important; }
   .audit-list article { grid-template-columns: 80px 1fr; }.audit-list time, .audit-list code { grid-column: 2; }
   .notification-list article { grid-template-columns: 28px 1fr; }.notification-list time { grid-column: 2; }
+  .external-feed { grid-template-columns: 1fr; padding: 18px; }.external-feed-content dl { grid-template-columns: 1fr; }.external-feed-content dl > div:first-child { border-right: 0; border-bottom: 1px solid var(--border); }.external-feed-action { width: 100%; }
 }
 
 @media (max-width: 420px) {
