@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { BacktestResult, Bar, DataMeta, FeedItem, IndicatorPoint, Instrument, SignalSnapshot, StrategyDescriptor, StrategyId, StrategySpec } from '../types'
+import type { BacktestRequest, BacktestResult, Bar, DataMeta, FeedItem, IndicatorPoint, Instrument, SignalSnapshot, StrategyDescriptor, StrategyId, StrategySpec } from '../types'
 
 export class ApiError extends Error {
   constructor(message: string, public status: number, public code = 'request_failed') {
@@ -45,7 +45,7 @@ export const api = {
   indicators: (symbol: string, period: '1d' | '1m' | '5m' | '15m' | '30m' | '60m' = '1d') => request<{ instrument: Instrument; history: IndicatorPoint[]; meta: DataMeta }>(`/api/market/${symbol}/indicators?period=${period}&limit=520`),
   signals: (symbol: string, strategy: StrategyId) => request<{ symbol: string; signal: SignalSnapshot; history: Array<{ date: string; event: string; close: number }>; data_source: string; is_demo: boolean }>(`/api/market/${symbol}/signals?strategy_id=${strategy}`),
   strategies: () => request<{ items: StrategyDescriptor[] }>('/api/strategies'),
-  backtest: (symbol: string, strategy_id: StrategyId) => request<BacktestResult>('/api/backtests', { method: 'POST', body: JSON.stringify({ symbol, strategy_id }) }),
+  backtest: (payload: BacktestRequest) => request<BacktestResult>('/api/backtests', { method: 'POST', body: JSON.stringify(payload) }),
   getBacktest: (id: string) => request<BacktestResult>(`/api/backtests/${id}`),
   aiGenerate: (prompt: string) => request<{ id: string; mode: 'mock' | 'deepseek'; spec: StrategySpec; readable_code: string; daily_used: number; daily_limit: number; disclaimer: string }>('/api/ai/strategy', { method: 'POST', body: JSON.stringify({ prompt }) }),
   aiBacktest: (symbol: string, spec: StrategySpec) => request<BacktestResult>('/api/ai/strategy/backtest', { method: 'POST', body: JSON.stringify({ symbol, spec }) }),

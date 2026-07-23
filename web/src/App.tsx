@@ -6,6 +6,7 @@ import { AiWorkshopPage } from './pages/AiWorkshopPage'
 import { AuthPage } from './pages/AuthPage'
 import { SetupPasswordPage } from './pages/SetupPasswordPage'
 import { BacktestPage } from './pages/BacktestPage'
+import { BacktestWorkbenchPage } from './pages/BacktestWorkbenchPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { FeedPage } from './pages/FeedPage'
 import { MarketPage } from './pages/MarketPage'
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="strategies" element={<StrategiesPage />} />
           <Route path="strategies/:strategyId" element={<StrategyDetailPage />} />
           <Route path="ai-workshop" element={<AiWorkshopPage />} />
+          <Route path="backtests/new" element={<BacktestWorkbenchPage />} />
           <Route path="backtests/:id" element={<BacktestPage />} />
           <Route path="watchlist" element={<WatchlistPage />} />
           <Route path="feed" element={<FeedPage />} />

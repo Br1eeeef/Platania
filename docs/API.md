@@ -38,3 +38,9 @@
 | GET | `/admin/members.csv` | 导出会员 |
 
 `POST /admin/members` 必须包含邮箱、套餐、起止时间、额度、付款确认以及付款备注或外部参考号。服务端调用 Supabase Admin Invite；不接受密码字段。
+
+## 可配置回测
+
+`POST /backtests` 支持 `symbol`、`strategy_id`、`initial_cash`、`commission_rate`、`minimum_commission`、`stamp_duty_rate`、`slippage_rate`、`max_position`、`benchmark_symbol`、可选 `start_date` / `end_date`，以及受白名单约束的 `strategy_parameters`。日期范围至少包含 130 根交易日 K 线。
+
+三套平台策略分别允许：趋势动量的 `rsi_min`、`rsi_max`、`atr_stop`；放量突破的 `volume_ratio`、`atr_stop`；均值回归的 `rsi_entry`、`rsi_exit`、`max_holding_days`。未知参数和越界数值返回 `422`，不接受任意代码。回测结果的 `parameters` 保存完整参数快照。

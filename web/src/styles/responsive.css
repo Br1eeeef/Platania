@@ -11,6 +11,7 @@
   .dashboard-grid, .ai-layout { grid-template-columns: 1fr; }
   .strategy-grid { grid-template-columns: 1fr; }
   .strategy-card { min-height: 0; }
+  .config-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .summary-band { grid-template-columns: repeat(2, 1fr); }
   .membership-steps { grid-template-columns: repeat(2, 1fr); }
   .membership-steps > div:nth-child(2) { border-right: 0; }.membership-steps > div:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
@@ -33,6 +34,9 @@
   .bottom-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #7b8492; font-size: 9px; }
   .bottom-nav a.active { color: #1d5f91; box-shadow: inset 0 2px var(--accent); }
   .page { padding: 20px 14px 30px; }
+  .config-grid { grid-template-columns: 1fr; }
+  .config-actions { padding-bottom: 4px; }
+  .config-actions .button { flex: 1; }
   .page-header { align-items: flex-start; }.page-header h1 { font-size: 22px; }.page-header p:not(.eyebrow) { font-size: 11px; }
   .page-header > .button { flex: 0 0 auto; }
   .summary-band { margin-top: 13px; }.summary-band > div { padding: 13px; }.summary-band strong { font-size: 16px; }

@@ -16,7 +16,12 @@ class MeanReversionStrategy(Strategy):
         parameters={"rsi_entry": 32, "rsi_exit": 55, "max_holding_days": 15, "max_position": 0.6},
     )
 
-    def evaluate(self, frame: pd.DataFrame, benchmark: pd.DataFrame | None = None) -> StrategyEvaluation:
+    def evaluate(
+        self,
+        frame: pd.DataFrame,
+        benchmark: pd.DataFrame | None = None,
+        parameters: dict[str, float | int] | None = None,
+    ) -> StrategyEvaluation:
         data = add_indicators(frame)
         if benchmark is not None:
             market = add_indicators(benchmark)[["date", "close", "ma120"]].rename(
@@ -27,7 +32,7 @@ class MeanReversionStrategy(Strategy):
         else:
             data["market_close"] = data["close"]
             data["market_ma120"] = data["ma120"]
-        params = self.descriptor.parameters
+        params = {**self.descriptor.parameters, **(parameters or {})}
         holding = False
         held_days = 0
         targets: list[float] = []

@@ -98,10 +98,25 @@ export interface BacktestResult {
     return_rate: number
     costs: number
   }>
-  parameters: Record<string, string | number>
+  parameters: Record<string, unknown>
   data_range: { start: string; end: string }
   data_source: string
   is_demo: boolean
+}
+
+export interface BacktestRequest {
+  symbol: string
+  strategy_id: StrategyId
+  initial_cash: number
+  commission_rate: number
+  minimum_commission: number
+  stamp_duty_rate: number
+  slippage_rate: number
+  max_position: number
+  benchmark_symbol: string
+  start_date?: string
+  end_date?: string
+  strategy_parameters: Record<string, number>
 }
 
 export interface StrategySpec {

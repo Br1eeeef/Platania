@@ -17,10 +17,18 @@ class BacktestService:
 
     def create(self, request: BacktestRequest) -> BacktestResult:
         _, frame, meta = market_data_service.load(request.symbol)
-        _, benchmark, _ = market_data_service.load("000300.SH")
-        evaluation = get_strategy(request.strategy_id).evaluate(frame, benchmark)
+        _, benchmark, _ = market_data_service.load(request.benchmark_symbol)
+        strategy_parameters = {**request.strategy_parameters, "max_position": request.max_position}
+        evaluation = get_strategy(request.strategy_id).evaluate(frame, benchmark, strategy_parameters)
+        evaluated_frame = evaluation.frame
+        if request.start_date:
+            evaluated_frame = evaluated_frame[evaluated_frame["date"].dt.date >= request.start_date]
+        if request.end_date:
+            evaluated_frame = evaluated_frame[evaluated_frame["date"].dt.date <= request.end_date]
+        if len(evaluated_frame) < 130:
+            raise ValueError("selected date range must contain at least 130 trading bars")
         result = self.engine.run(
-            evaluation.frame,
+            evaluated_frame,
             benchmark,
             request,
             provider=meta.provider,

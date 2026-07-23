@@ -16,9 +16,14 @@ class TrendMomentumStrategy(Strategy):
         parameters={"rsi_min": 42, "rsi_max": 72, "atr_stop": 3.0, "max_position": 0.9},
     )
 
-    def evaluate(self, frame: pd.DataFrame, benchmark: pd.DataFrame | None = None) -> StrategyEvaluation:
+    def evaluate(
+        self,
+        frame: pd.DataFrame,
+        benchmark: pd.DataFrame | None = None,
+        parameters: dict[str, float | int] | None = None,
+    ) -> StrategyEvaluation:
         data = add_indicators(frame)
-        params = self.descriptor.parameters
+        params = {**self.descriptor.parameters, **(parameters or {})}
         holding = False
         entry_price = 0.0
         targets: list[float] = []

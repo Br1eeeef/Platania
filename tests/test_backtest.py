@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
+from pydantic import ValidationError
 
 from api.app.backtest import BacktestEngine
 from api.app.models.backtest import BacktestRequest
@@ -47,3 +49,32 @@ def test_suspension_defers_entry() -> None:
         frame, frame, BacktestRequest(symbol="600036.SH", strategy_id="trend_momentum"), provider="test", is_demo=True
     )
     assert result.trades[0].entry_date == frame.iloc[122]["date"].date()
+
+
+def test_configurable_request_is_preserved_in_parameter_snapshot() -> None:
+    request = BacktestRequest(
+        symbol="600036.SH",
+        strategy_id="trend_momentum",
+        initial_cash=250_000,
+        max_position=0.35,
+        benchmark_symbol="000300.SH",
+        strategy_parameters={"rsi_min": 45, "rsi_max": 68, "atr_stop": 2.5},
+    )
+    result = BacktestEngine().run(synthetic_frame(), synthetic_frame(), request, provider="test", is_demo=False)
+    assert result.parameters["initial_cash"] == 250_000
+    assert result.parameters["max_position"] == 0.35
+    assert result.parameters["strategy_parameters"]["atr_stop"] == 2.5
+    assert result.parameters["benchmark_symbol"] == "000300.SH"
+
+
+@pytest.mark.parametrize(
+    ("strategy_id", "parameters"),
+    [
+        ("trend_momentum", {"unknown": 1}),
+        ("trend_momentum", {"rsi_min": 80, "rsi_max": 60}),
+        ("mean_reversion", {"rsi_entry": 60}),
+    ],
+)
+def test_strategy_parameter_whitelist_and_ranges(strategy_id: str, parameters: dict[str, float]) -> None:
+    with pytest.raises(ValidationError):
+        BacktestRequest(symbol="600036.SH", strategy_id=strategy_id, strategy_parameters=parameters)

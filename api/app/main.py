@@ -44,7 +44,7 @@ def health() -> dict[str, object]:
         "version": "0.2.0",
         "data_mode": settings.data_mode,
         "ai_mode": "deepseek" if settings.deepseek_enabled else "mock",
-        "auth_mode": "supabase" if settings.supabase_enabled else "demo",
+        "auth_mode": "demo" if settings.demo_auth_enabled else "supabase",
     }
 
 

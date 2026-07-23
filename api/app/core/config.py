@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     log_level: str = Field("INFO", validation_alias="PLATANIA_LOG_LEVEL")
     public_url: str = Field("http://localhost:5173", validation_alias="PLATANIA_PUBLIC_URL")
     admin_user_ids_raw: str = Field("", validation_alias="PLATANIA_ADMIN_USER_IDS")
+    dev_auth_bypass: bool = Field(False, validation_alias="PLATANIA_DEV_AUTH_BYPASS")
     provider_min_interval_seconds: float = Field(1.5, ge=0.5, validation_alias="PLATANIA_PROVIDER_MIN_INTERVAL_SECONDS")
     provider_timeout_seconds: float = Field(20, ge=3, le=120, validation_alias="PLATANIA_PROVIDER_TIMEOUT_SECONDS")
     provider_max_retries: int = Field(3, ge=1, le=6, validation_alias="PLATANIA_PROVIDER_MAX_RETRIES")
@@ -58,6 +59,10 @@ class Settings(BaseSettings):
     @property
     def supabase_enabled(self) -> bool:
         return bool(self.supabase_url and self.supabase_secret_key)
+
+    @property
+    def demo_auth_enabled(self) -> bool:
+        return not self.supabase_enabled or (self.environment == "development" and self.dev_auth_bypass)
 
     @property
     def deepseek_enabled(self) -> bool:

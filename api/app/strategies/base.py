@@ -18,7 +18,12 @@ class Strategy(ABC):
     descriptor: StrategyDescriptor
 
     @abstractmethod
-    def evaluate(self, frame: pd.DataFrame, benchmark: pd.DataFrame | None = None) -> StrategyEvaluation:
+    def evaluate(
+        self,
+        frame: pd.DataFrame,
+        benchmark: pd.DataFrame | None = None,
+        parameters: dict[str, float | int] | None = None,
+    ) -> StrategyEvaluation:
         """Return close-time target positions. Execution is deferred by the backtester."""
 
 

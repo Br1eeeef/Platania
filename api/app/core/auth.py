@@ -14,7 +14,7 @@ bearer = HTTPBearer(auto_error=False)
 
 
 def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(bearer)) -> UserContext:
-    if not settings.supabase_enabled:
+    if settings.demo_auth_enabled:
         if settings.environment == "production":
             raise HTTPException(status_code=503, detail="生产环境尚未配置会员认证")
         now = datetime.now(UTC)

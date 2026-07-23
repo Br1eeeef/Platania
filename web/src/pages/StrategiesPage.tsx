@@ -16,6 +16,5 @@ export function StrategyDetailPage() {
   if (error) return <ErrorState error={error} retry={retry} />
   const strategy = data?.items.find((item) => item.id === strategyId)
   if (!strategy) return <ErrorState error={new Error('策略不存在')} retry={() => history.back()} />
-  return <div className="page narrow"><div className="page-header"><div><p className="eyebrow">PLATFORM STRATEGY</p><h1>{strategy.name}</h1><p>{strategy.summary}</p></div></div><section className="document-section"><h2>参数快照</h2><div className="parameter-list">{Object.entries(strategy.parameters).map(([key,value]) => <div key={key}><span>{key}</span><strong>{value}</strong></div>)}</div><h2>执行约束</h2><ul><li>收盘后产生信号，最早在下一交易日开盘执行。</li><li>计入佣金、最低佣金、印花税和滑点。</li><li>停牌时不成交，涨跌停时使用保守的不可成交假设。</li><li>所有历史结果仅用于研究，不代表未来收益。</li></ul><Link to="/market" className="button primary">选择标的运行回测</Link></section></div>
+  return <div className="page narrow"><div className="page-header"><div><p className="eyebrow">PLATFORM STRATEGY</p><h1>{strategy.name}</h1><p>{strategy.summary}</p></div></div><section className="document-section"><h2>参数快照</h2><div className="parameter-list">{Object.entries(strategy.parameters).map(([key,value]) => <div key={key}><span>{key}</span><strong>{value}</strong></div>)}</div><h2>执行约束</h2><ul><li>收盘后产生信号，最早在下一交易日开盘执行。</li><li>计入佣金、最低佣金、印花税和滑点。</li><li>停牌时不成交，涨跌停时使用保守的不可成交假设。</li><li>所有历史结果仅用于研究，不代表未来收益。</li></ul><Link to={`/backtests/new?strategy=${strategy.id}`} className="button primary">配置并运行回测</Link></section></div>
 }
-

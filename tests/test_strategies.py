@@ -28,3 +28,14 @@ def test_future_bar_cannot_change_historical_targets(demo_frame: pd.DataFrame, b
     extended = pd.concat([demo_frame, pd.DataFrame([future])], ignore_index=True)
     rerun = strategy.evaluate(extended, benchmark_frame).frame["target_position"].iloc[:-1]
     pd.testing.assert_series_equal(baseline.reset_index(drop=True), rerun.reset_index(drop=True))
+
+
+def test_strategy_parameter_override_caps_target_position(
+    demo_frame: pd.DataFrame, benchmark_frame: pd.DataFrame
+) -> None:
+    result = TrendMomentumStrategy().evaluate(
+        demo_frame,
+        benchmark_frame,
+        {"rsi_min": 0, "rsi_max": 100, "atr_stop": 4.0, "max_position": 0.25},
+    )
+    assert result.frame["target_position"].max() <= 0.25
