@@ -54,6 +54,7 @@
   .usage-grid, .membership-grid { grid-template-columns: 1fr; }
   .spec-summary { grid-template-columns: 1fr; }.spec-summary div { border-right: 0; border-bottom: 1px solid var(--border); }
   .parameter-editor { flex-direction: column; }.parameter-editor label { grid-template-columns: 1fr 80px 14px; }
+  .ai-backtest-grid { grid-template-columns: 1fr; }
   .spec-actions { align-items: stretch; flex-direction: column; }.spec-actions .button { width: 100%; }
   .welcome-nav { padding: 0 16px; }.welcome-nav nav > a:first-child { display: none; }
   .welcome-hero { height: 72vh; min-height: 520px; }.hero-content { padding: 15vh 18px 0; }.hero-content h1 { font-size: 49px; }.hero-content > p:not(.eyebrow) { font-size: 16px; }.hero-content > div { align-items: stretch; flex-direction: column; max-width: 250px; }

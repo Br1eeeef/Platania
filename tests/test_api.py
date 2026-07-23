@@ -32,6 +32,18 @@ def test_ai_mock_and_validation_contract() -> None:
     assert validated.json()["valid"] is True
 
 
+def test_ai_backtest_rejects_invalid_initial_cash() -> None:
+    generated = client.post(
+        "/api/ai/strategy",
+        json={"prompt": "生成A股趋势策略，MA20上穿MA60，亏损8%退出，最大仓位10%"},
+    )
+    response = client.post(
+        "/api/ai/strategy/backtest",
+        json={"symbol": "600519.SH", "spec": generated.json()["spec"], "initial_cash": 9999},
+    )
+    assert response.status_code == 422
+
+
 def test_invalid_symbol_has_correct_status() -> None:
     response = client.get("/api/market/999999.SH/bars")
     assert response.status_code == 404

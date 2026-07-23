@@ -153,6 +153,13 @@
 .spec-panel details { margin-top: 15px; border-top: 1px solid var(--border); }
 .spec-panel summary { display: flex; align-items: center; gap: 6px; padding: 12px 0; cursor: pointer; font-size: 10px; }
 .spec-panel pre { max-height: 240px; overflow: auto; padding: 12px; color: #d7e0ea; background: #172132; font-size: 9px; line-height: 1.6; white-space: pre-wrap; }
+.ai-backtest-config { margin-top: 15px; padding: 15px; border: 1px solid var(--border); background: #f8fafb; }
+.ai-backtest-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 13px; }.ai-backtest-heading svg { color: var(--negative); }.ai-backtest-heading h3 { margin-top: 3px; }
+.ai-backtest-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(170px, .65fr); gap: 13px; }
+.ai-backtest-grid > label { min-width: 0; display: grid; gap: 6px; color: var(--muted); font-size: 10px; }
+.ai-backtest-grid input { min-width: 0; width: 100%; height: 38px; padding: 0 10px; border: 1px solid #cfd5dd; border-radius: var(--radius); color: var(--text); background: #fff; font-size: 11px; }.ai-backtest-grid input:focus { border-color: var(--blue); outline: 2px solid #dce8f7; }
+.stock-search-input { position: relative; display: block; }.stock-search-input svg { position: absolute; top: 50%; left: 10px; color: var(--faint); transform: translateY(-50%); pointer-events: none; }.stock-search-input input { padding-left: 32px; }
+.ai-backtest-grid small { min-height: 14px; color: var(--faint); font-size: 9px; line-height: 1.5; }
 .spec-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 15px; }
 .spec-actions small { color: var(--muted); }
 .empty-spec { min-height: 430px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; color: var(--muted); text-align: center; }

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from api.app.ai.compiler import compile_readable_code, evaluate_spec
 from api.app.ai.deepseek import DeepSeekError
@@ -20,7 +20,7 @@ router = APIRouter(tags=["ai"])
 class AiBacktestRequest(BaseModel):
     symbol: str
     spec: StrategySpec
-    initial_cash: float = 100_000
+    initial_cash: float = Field(100_000, ge=10_000, le=100_000_000)
 
 
 @router.post("/ai/strategy", response_model=StrategyGenerationResponse, status_code=201)
