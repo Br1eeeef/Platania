@@ -65,7 +65,8 @@ class MarketDataService:
         end = date.today()
         existing = self.cache.read(instrument.symbol, timeframe)
         start = end - timedelta(days=900 if timeframe == "1d" else 10)
-        if existing and not existing[0].empty:
+        existing_is_live = bool(existing and not existing[0].empty and existing[1].kind == DataKind.LIVE)
+        if existing_is_live and existing:
             start = existing[0]["date"].max().date() - timedelta(days=5 if timeframe == "1d" else 2)
 
         providers = [] if force_demo or settings.demo_mode else self.live_providers
@@ -84,7 +85,11 @@ class MarketDataService:
                     timeframe=timeframe,
                     warnings=warnings,
                 )
-                return instrument, self.cache.merge(instrument.symbol, frame, meta, timeframe), meta
+                if existing_is_live:
+                    frame = self.cache.merge(instrument.symbol, frame, meta, timeframe)
+                else:
+                    self.cache.write(instrument.symbol, frame, meta, timeframe)
+                return instrument, frame, meta
             except ProviderError as exc:
                 logger.warning(
                     "provider_failed provider=%s symbol=%s error=%s", provider.name, instrument.symbol, type(exc).__name__
