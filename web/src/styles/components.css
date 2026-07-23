@@ -67,6 +67,8 @@
 .data-table th { height: 36px; padding: 0 14px; color: var(--faint); background: #f7f9fb; text-align: left; font-size: 10px; font-weight: 550; white-space: nowrap; }
 .data-table td { height: var(--row-height, 55px); padding: 8px 14px; border-top: 1px solid var(--border); color: #475467; }
 .data-table tr:hover td { background: #fafbfc; }
+.pagination { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 12px; color: var(--muted); font-size: 10px; }
+.pagination .button { min-width: 70px; }
 .data-table strong, .data-table small { display: block; }
 .data-table strong { color: var(--text); font-size: 12px; }
 .data-table small { margin-top: 3px; color: var(--faint); font-size: 9px; }

@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import math
 import random
-from datetime import date
+from datetime import date, datetime, timedelta
 
 import pandas as pd
 
@@ -73,4 +73,36 @@ class DemoProvider(MarketDataProvider):
                 }
             )
             price = close_price
+        return validate_frame(pd.DataFrame(rows))
+
+    def fetch_intraday(self, instrument: Instrument, interval: str, start: date, end: date) -> pd.DataFrame:
+        minutes = int(interval)
+        daily = self.fetch_daily(instrument, start - timedelta(days=5), end, adjustment="none").tail(8)
+        rows: list[dict[str, object]] = []
+        for daily_row in daily.itertuples():
+            price = float(daily_row.open)
+            target = float(daily_row.close)
+            slots = list(range(0, 240, minutes))
+            for slot_index, slot in enumerate(slots):
+                hour = 9 + (30 + slot) // 60
+                minute = (30 + slot) % 60
+                if hour >= 12:
+                    hour += 1
+                timestamp = datetime.combine(daily_row.date.date(), datetime.min.time()).replace(hour=hour, minute=minute)
+                progress = (slot_index + 1) / len(slots)
+                close = price + (target - price) * progress
+                rows.append(
+                    {
+                        "date": timestamp,
+                        "open": price,
+                        "high": max(price, close),
+                        "low": min(price, close),
+                        "close": close,
+                        "volume": daily_row.volume / len(slots),
+                        "amount": daily_row.amount / len(slots),
+                        "suspended": daily_row.suspended,
+                        "adjustment": "none",
+                    }
+                )
+                price = close
         return validate_frame(pd.DataFrame(rows))

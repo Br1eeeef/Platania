@@ -24,7 +24,7 @@ class Instrument(BaseModel):
 class Bar(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    date: date
+    date: date | datetime
     open: float = Field(gt=0)
     high: float = Field(gt=0)
     low: float = Field(gt=0)
@@ -48,6 +48,7 @@ class DataMeta(BaseModel):
     kind: DataKind
     updated_at: datetime
     adjustment: str = "qfq"
+    timeframe: str = "1d"
     is_stale: bool = False
     warnings: list[str] = Field(default_factory=list)
 

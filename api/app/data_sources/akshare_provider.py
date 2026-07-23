@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import TimeoutError as FutureTimeoutError
 from datetime import date
@@ -15,6 +16,16 @@ from .rate_limit import RateLimiter
 
 FIELD_MAP = {
     "日期": "date",
+    "开盘": "open",
+    "最高": "high",
+    "最低": "low",
+    "收盘": "close",
+    "成交量": "volume",
+    "成交额": "amount",
+}
+
+INTRADAY_FIELD_MAP = {
+    "时间": "date",
     "开盘": "open",
     "最高": "high",
     "最低": "low",
@@ -72,3 +83,74 @@ class AkshareProvider(MarketDataProvider):
         frame["suspended"] = frame["volume"].fillna(0).eq(0)
         frame["adjustment"] = adjustment
         return validate_frame(frame)
+
+    def fetch_instruments(self) -> list[Instrument]:
+        try:
+            import akshare as ak
+        except ImportError as exc:
+            raise ProviderUnavailable("AKShare is not installed") from exc
+        self.limiter.wait()
+        raw = self._with_timeout(ak.stock_info_a_code_name)
+        if raw is None or raw.empty or not {"code", "name"}.issubset(raw.columns):
+            raise ProviderUnavailable("AKShare returned an invalid A-share universe")
+        instruments: list[Instrument] = []
+        for row in raw[["code", "name"]].itertuples(index=False):
+            code = str(row.code).zfill(6)
+            if not code.isdigit() or code.startswith("9"):
+                continue
+            exchange = "SH" if code.startswith(("5", "6")) else "SZ"
+            instruments.append(
+                Instrument(symbol=f"{code}.{exchange}", code=code, name=str(row.name).strip(), exchange=exchange, sector="待同步")
+            )
+        if not instruments:
+            raise ProviderUnavailable("AKShare returned no tradable A-share instruments")
+        return instruments
+
+    @retry(
+        retry=retry_if_exception_type((ProviderUnavailable, ProviderError)),
+        stop=stop_after_attempt(settings.provider_max_retries),
+        wait=wait_exponential(multiplier=1, min=1, max=8),
+        reraise=True,
+    )
+    def fetch_intraday(self, instrument: Instrument, interval: str, start: date, end: date) -> pd.DataFrame:
+        if interval not in {"1", "5", "15", "30", "60"}:
+            raise ProviderError(f"unsupported intraday interval: {interval}")
+        try:
+            import akshare as ak
+        except ImportError as exc:
+            raise ProviderUnavailable("AKShare is not installed") from exc
+        self.limiter.wait()
+
+        def request() -> pd.DataFrame:
+            return ak.stock_zh_a_hist_min_em(
+                symbol=instrument.code,
+                period=interval,
+                start_date=f"{start.isoformat()} 09:30:00",
+                end_date=f"{end.isoformat()} 15:00:00",
+                adjust="",
+            )
+
+        raw = self._with_timeout(request)
+        if raw is None or raw.empty:
+            raise ProviderUnavailable("AKShare returned no intraday bars")
+        missing = set(INTRADAY_FIELD_MAP) - set(raw.columns)
+        if missing:
+            raise ProviderError(f"AKShare intraday fields changed: {sorted(missing)}")
+        frame = raw.rename(columns=INTRADAY_FIELD_MAP)[list(INTRADAY_FIELD_MAP.values())].copy()
+        frame["suspended"] = frame["volume"].fillna(0).eq(0)
+        frame["adjustment"] = "none"
+        return validate_frame(frame)
+
+    @staticmethod
+    def _with_timeout(callback: Callable[[], pd.DataFrame]) -> pd.DataFrame:
+        executor = ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(callback)
+        try:
+            return future.result(timeout=settings.provider_timeout_seconds)
+        except FutureTimeoutError as exc:
+            future.cancel()
+            raise ProviderUnavailable(f"AKShare timed out after {settings.provider_timeout_seconds}s") from exc
+        except Exception as exc:
+            raise ProviderUnavailable(f"AKShare request failed: {type(exc).__name__}") from exc
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)

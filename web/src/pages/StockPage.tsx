@@ -17,12 +17,13 @@ const strategies: Array<{ id: StrategyId; name: string }> = [
 export function StockPage() {
   const { symbol = '600519.SH' } = useParams()
   const navigate = useNavigate()
-  const [period, setPeriod] = useState<'1d' | '1w'>('1d')
+  const [period, setPeriod] = useState<'1d' | '1w' | '1m' | '5m' | '15m' | '30m' | '60m'>('1d')
   const [range, setRange] = useState(260)
   const [strategy, setStrategy] = useState<StrategyId>('trend_momentum')
   const [overlays, setOverlays] = useState<Set<Overlay>>(new Set(['ma20', 'ma60', 'ma120']))
   const [running, setRunning] = useState(false)
-  const { data, loading, error, retry } = useAsync(() => Promise.all([api.bars(symbol, period), api.indicators(symbol), api.signals(symbol, strategy)]), [symbol, period, strategy])
+  const indicatorPeriod = period === '1w' ? '1d' : period
+  const { data, loading, error, retry } = useAsync(() => Promise.all([api.bars(symbol, period), api.indicators(symbol, indicatorPeriod), api.signals(symbol, strategy)]), [symbol, period, strategy])
   const visible = useMemo(() => data ? { bars: data[0].bars.slice(-range), indicators: data[1].history.slice(-range) } : null, [data, range])
   if (loading && !data) return <LoadingState />
   if (error || !data || !visible) return <ErrorState error={error ?? new Error('无行情数据')} retry={retry} />
@@ -44,7 +45,7 @@ export function StockPage() {
     <div className="stock-layout">
       <aside className="stock-left"><h2>策略切换</h2>{strategies.map((item) => <button key={item.id} onClick={() => setStrategy(item.id)} className={strategy === item.id ? 'active' : ''}>{item.name}</button>)}<div className="watch-action"><button className="button secondary" onClick={() => void api.addWatchlist(symbol)}><Plus size={15} />加入自选</button></div></aside>
       <section className="chart-workspace">
-        <div className="chart-toolbar"><div className="segmented"><button className={period === '1d' ? 'active' : ''} onClick={() => setPeriod('1d')}>日K</button><button className={period === '1w' ? 'active' : ''} onClick={() => setPeriod('1w')}>周K</button></div><div className="segmented"><button className={range === 120 ? 'active' : ''} onClick={() => setRange(120)}>6月</button><button className={range === 260 ? 'active' : ''} onClick={() => setRange(260)}>1年</button><button className={range === 520 ? 'active' : ''} onClick={() => setRange(520)}>全部</button></div><button className="icon-button" onClick={retry} aria-label="重新加载"><RefreshCw size={16} /></button></div>
+        <div className="chart-toolbar"><div className="segmented"><button className={period === '1d' ? 'active' : ''} onClick={() => setPeriod('1d')}>日K</button><button className={period === '1w' ? 'active' : ''} onClick={() => setPeriod('1w')}>周K</button><button className={period === '1m' ? 'active' : ''} onClick={() => setPeriod('1m')}>1分</button><button className={period === '5m' ? 'active' : ''} onClick={() => setPeriod('5m')}>5分</button><button className={period === '15m' ? 'active' : ''} onClick={() => setPeriod('15m')}>15分</button><button className={period === '30m' ? 'active' : ''} onClick={() => setPeriod('30m')}>30分</button><button className={period === '60m' ? 'active' : ''} onClick={() => setPeriod('60m')}>60分</button></div><div className="segmented"><button className={range === 120 ? 'active' : ''} onClick={() => setRange(120)}>短期</button><button className={range === 260 ? 'active' : ''} onClick={() => setRange(260)}>中期</button><button className={range === 520 ? 'active' : ''} onClick={() => setRange(520)}>全部</button></div><button className="icon-button" onClick={retry} aria-label="重新加载"><RefreshCw size={16} /></button></div>
         <div className="indicator-toggles" aria-label="图表指标">{(['ma5','ma20','ma60','ma120','ema','bollinger'] as Overlay[]).map((item) => <label key={item}><input type="checkbox" checked={overlays.has(item)} onChange={() => toggleOverlay(item)} />{item.toUpperCase()}</label>)}</div>
         <PriceChart bars={visible.bars} indicators={visible.indicators} overlays={overlays} signals={signalResponse.history} />
         <div className="technical-strip"><div><span>MACD</span><strong className={tone(indicators.macd_hist ?? 0)}>{number(indicators.macd_hist ?? 0, 3)}</strong></div><div><span>RSI 14</span><strong>{number(indicators.rsi14 ?? 0, 1)}</strong></div><div><span>ATR 14</span><strong>{number(indicators.atr14 ?? 0, 2)}</strong></div><div><span>60日动量</span><strong className={tone(indicators.momentum60 ?? 0)}>{percent(indicators.momentum60 ?? 0)}</strong></div><div><span>量比</span><strong>{number(indicators.volume_ratio ?? 0, 2)}</strong></div></div>

@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     provider_min_interval_seconds: float = Field(1.5, ge=0.5, validation_alias="PLATANIA_PROVIDER_MIN_INTERVAL_SECONDS")
     provider_timeout_seconds: float = Field(20, ge=3, le=120, validation_alias="PLATANIA_PROVIDER_TIMEOUT_SECONDS")
     provider_max_retries: int = Field(3, ge=1, le=6, validation_alias="PLATANIA_PROVIDER_MAX_RETRIES")
+    realtime_cache_ttl_seconds: int = Field(90, ge=15, le=900, validation_alias="PLATANIA_REALTIME_CACHE_TTL_SECONDS")
+    realtime_default_interval: Literal["1", "5", "15", "30", "60"] = Field(
+        "5", validation_alias="PLATANIA_REALTIME_DEFAULT_INTERVAL"
+    )
+    on_demand_live_refresh: bool = Field(True, validation_alias="PLATANIA_ON_DEMAND_LIVE_REFRESH")
 
     deepseek_api_key: str = Field("", validation_alias="DEEPSEEK_API_KEY")
     deepseek_api_base: str = Field("https://api.deepseek.com", validation_alias="DEEPSEEK_API_BASE")

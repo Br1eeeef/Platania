@@ -40,9 +40,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   health: () => request<{ status: string; data_mode: string; ai_mode: string; auth_mode: string }>('/api/health'),
   marketStatus: () => request<Record<string, any>>('/api/market/status'),
-  instruments: () => request<{ items: Instrument[] }>('/api/instruments?page_size=100'),
-  bars: (symbol: string, period: '1d' | '1w' = '1d') => request<{ instrument: Instrument; period: string; bars: Bar[]; meta: DataMeta }>(`/api/market/${symbol}/bars?period=${period}&limit=520`),
-  indicators: (symbol: string) => request<{ instrument: Instrument; history: IndicatorPoint[]; meta: DataMeta }>(`/api/market/${symbol}/indicators?limit=520`),
+  instruments: (page = 1, search = '') => request<{ items: Instrument[]; pagination: { page: number; page_size: number; total: number }; catalog_updated_at?: string; catalog_stale?: boolean }>(`/api/instruments?page=${page}&page_size=50&search=${encodeURIComponent(search)}`),
+  bars: (symbol: string, period: '1d' | '1w' | '1m' | '5m' | '15m' | '30m' | '60m' = '1d') => request<{ instrument: Instrument; period: string; bars: Bar[]; meta: DataMeta }>(`/api/market/${symbol}/bars?period=${period}&limit=520`),
+  indicators: (symbol: string, period: '1d' | '1m' | '5m' | '15m' | '30m' | '60m' = '1d') => request<{ instrument: Instrument; history: IndicatorPoint[]; meta: DataMeta }>(`/api/market/${symbol}/indicators?period=${period}&limit=520`),
   signals: (symbol: string, strategy: StrategyId) => request<{ symbol: string; signal: SignalSnapshot; history: Array<{ date: string; event: string; close: number }>; data_source: string; is_demo: boolean }>(`/api/market/${symbol}/signals?strategy_id=${strategy}`),
   strategies: () => request<{ items: StrategyDescriptor[] }>('/api/strategies'),
   backtest: (symbol: string, strategy_id: StrategyId) => request<BacktestResult>('/api/backtests', { method: 'POST', body: JSON.stringify({ symbol, strategy_id }) }),

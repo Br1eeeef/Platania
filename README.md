@@ -69,6 +69,15 @@ pnpm --dir web dev
 
 ## 行情刷新
 
+全 A 股目录每日同步一次；分钟 K 线（1/5/15/30/60 分钟）仅对已查看或运营配置的标的按需刷新并缓存，默认 TTL 为 90 秒。可手动执行：
+
+```powershell
+.\.venv\Scripts\python.exe scripts\refresh_market.py --catalog
+.\.venv\Scripts\python.exe scripts\refresh_market.py --symbol 600519.SH --interval-kind 5m
+```
+
+根目录被忽略的 `.env` 可调整 `PLATANIA_REALTIME_CACHE_TTL_SECONDS`、`PLATANIA_REALTIME_DEFAULT_INTERVAL` 和 `PLATANIA_ON_DEMAND_LIVE_REFRESH`。AKShare 用于本地真实数据演示，数据来源、更新时间与真实/演示状态会在 API 和页面上清楚标识；其公开聚合源不代表已获得收费产品的商业再分发授权。
+
 ```powershell
 .\.venv\Scripts\python.exe scripts\refresh_market.py
 .\.venv\Scripts\python.exe scripts\refresh_market.py --demo

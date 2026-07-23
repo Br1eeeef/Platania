@@ -26,13 +26,16 @@ class MarketDataProvider(ABC):
     def fetch_daily(self, instrument: Instrument, start: date, end: date, adjustment: str = "qfq") -> pd.DataFrame:
         """Return normalized daily bars without provider-specific column names."""
 
+    def fetch_intraday(self, instrument: Instrument, interval: str, start: date, end: date) -> pd.DataFrame:
+        raise ProviderUnavailable(f"{self.name} does not support intraday bars")
+
 
 def validate_frame(frame: pd.DataFrame) -> pd.DataFrame:
     missing = set(STANDARD_COLUMNS) - set(frame.columns)
     if missing:
         raise ProviderError(f"missing normalized fields: {sorted(missing)}")
     normalized = frame[STANDARD_COLUMNS].copy()
-    normalized["date"] = pd.to_datetime(normalized["date"], errors="coerce").dt.normalize()
+    normalized["date"] = pd.to_datetime(normalized["date"], errors="coerce")
     numeric = ["open", "high", "low", "close", "volume", "amount"]
     normalized[numeric] = normalized[numeric].apply(pd.to_numeric, errors="coerce")
     normalized = normalized.dropna(subset=["date", "open", "high", "low", "close"])

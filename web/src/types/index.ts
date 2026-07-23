@@ -28,6 +28,7 @@ export interface DataMeta {
   kind: DataKind
   updated_at: string
   adjustment: string
+  timeframe: string
   is_stale: boolean
   warnings: string[]
 }

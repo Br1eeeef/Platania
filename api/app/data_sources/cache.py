@@ -17,8 +17,8 @@ class ParquetCache:
         self.ttl = timedelta(hours=ttl_hours)
         self.root.mkdir(parents=True, exist_ok=True)
 
-    def read(self, symbol: str) -> tuple[pd.DataFrame, DataMeta] | None:
-        bars_path, meta_path = self._paths(symbol)
+    def read(self, symbol: str, timeframe: str = "1d") -> tuple[pd.DataFrame, DataMeta] | None:
+        bars_path, meta_path = self._paths(symbol, timeframe)
         if not bars_path.exists() or not meta_path.exists():
             return None
         try:
@@ -29,9 +29,9 @@ class ParquetCache:
         except (OSError, ValueError, json.JSONDecodeError):
             return None
 
-    def write(self, symbol: str, frame: pd.DataFrame, meta: DataMeta) -> None:
+    def write(self, symbol: str, frame: pd.DataFrame, meta: DataMeta, timeframe: str = "1d") -> None:
         normalized = validate_frame(frame)
-        bars_path, meta_path = self._paths(symbol)
+        bars_path, meta_path = self._paths(symbol, timeframe)
         bars_tmp = bars_path.with_suffix(".tmp.parquet")
         meta_tmp = meta_path.with_suffix(".tmp.json")
         normalized.to_parquet(bars_tmp, index=False)
@@ -39,13 +39,14 @@ class ParquetCache:
         bars_tmp.replace(bars_path)
         meta_tmp.replace(meta_path)
 
-    def merge(self, symbol: str, new_frame: pd.DataFrame, meta: DataMeta) -> pd.DataFrame:
-        existing = self.read(symbol)
+    def merge(self, symbol: str, new_frame: pd.DataFrame, meta: DataMeta, timeframe: str = "1d") -> pd.DataFrame:
+        existing = self.read(symbol, timeframe)
         combined = pd.concat([existing[0], new_frame], ignore_index=True) if existing else new_frame
         combined = validate_frame(combined)
-        self.write(symbol, combined, meta)
+        self.write(symbol, combined, meta, timeframe)
         return combined
 
-    def _paths(self, symbol: str) -> tuple[Path, Path]:
+    def _paths(self, symbol: str, timeframe: str = "1d") -> tuple[Path, Path]:
         slug = symbol.lower().replace(".", "_")
-        return self.root / f"{slug}.parquet", self.root / f"{slug}.meta.json"
+        suffix = "" if timeframe == "1d" else f"_{timeframe}m"
+        return self.root / f"{slug}{suffix}.parquet", self.root / f"{slug}{suffix}.meta.json"

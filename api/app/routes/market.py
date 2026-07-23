@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from api.app.core.auth import active_member
 from api.app.data_sources import market_data_service
-from api.app.data_sources.catalog import INSTRUMENTS
+from api.app.data_sources.catalog import catalog_service
 from api.app.indicators import add_indicators
 from api.app.models.market import Bar, BarsResponse, DataKind
 from api.app.models.strategy import SignalResponse, StrategyId
@@ -34,36 +34,48 @@ def instruments(
     page_size: int = Query(20, ge=1, le=100),
     search: str = Query("", max_length=30),
 ) -> dict[str, object]:
-    values = [item for item in INSTRUMENTS.values() if item.sector != "宽基指数"]
-    if search:
-        keyword = search.strip().lower()
-        values = [item for item in values if keyword in item.symbol.lower() or keyword in item.name.lower()]
+    if catalog_service.is_stale:
+        try:
+            catalog_service.refresh()
+        except Exception:
+            pass
+    values = catalog_service.list(search)
     start = (page - 1) * page_size
     return {
         "items": values[start : start + page_size],
         "pagination": {"page": page, "page_size": page_size, "total": len(values)},
+        "catalog_updated_at": catalog_service.updated_at,
+        "catalog_stale": catalog_service.is_stale,
     }
 
 
 @router.get("/market/{symbol}/bars", response_model=BarsResponse)
 def bars(
     symbol: str,
-    period: str = Query("1d", pattern="^(1d|1w)$"),
+    period: str = Query("1d", pattern="^(1d|1w|1m|5m|15m|30m|60m)$"),
     limit: int = Query(260, ge=30, le=1000),
 ) -> BarsResponse:
     try:
-        instrument, frame, meta = market_data_service.load(symbol)
-        output = market_data_service.resample(frame, period).tail(limit)
+        timeframe = period.removesuffix("m") if period.endswith("m") else "1d"
+        instrument, frame, meta = market_data_service.load(symbol, timeframe=timeframe)
+        output = market_data_service.resample(frame, period) if period in {"1d", "1w"} else frame
+        output = output.tail(limit)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    records = [Bar.model_validate({**row, "date": row["date"].date()}) for row in output.to_dict(orient="records")]
+    records = [
+        Bar.model_validate({**row, "date": row["date"].date() if period in {"1d", "1w"} else row["date"].to_pydatetime()})
+        for row in output.to_dict(orient="records")
+    ]
     return BarsResponse(instrument=instrument, period=period, bars=records, meta=meta)
 
 
 @router.get("/market/{symbol}/indicators")
-def indicators(symbol: str, limit: int = Query(260, ge=30, le=1000)) -> dict[str, object]:
+def indicators(
+    symbol: str, period: str = Query("1d", pattern="^(1d|1m|5m|15m|30m|60m)$"), limit: int = Query(260, ge=30, le=1000)
+) -> dict[str, object]:
     try:
-        instrument, frame, meta = market_data_service.load(symbol)
+        timeframe = period.removesuffix("m") if period.endswith("m") else "1d"
+        instrument, frame, meta = market_data_service.load(symbol, timeframe=timeframe)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     data = add_indicators(frame).tail(limit)
@@ -86,7 +98,7 @@ def indicators(symbol: str, limit: int = Query(260, ge=30, le=1000)) -> dict[str
         "volume_ratio",
     ]
     history = data[columns].copy()
-    history["date"] = history["date"].dt.date.astype(str)
+    history["date"] = history["date"].dt.strftime("%Y-%m-%d" if period == "1d" else "%Y-%m-%dT%H:%M:%S")
     history = history.where(history.notna(), None)
     return {"instrument": instrument, "history": history.to_dict(orient="records"), "meta": meta}
 
@@ -114,9 +126,12 @@ def signals(symbol: str, strategy_id: StrategyId = Query(StrategyId.TREND_MOMENT
 
 
 @router.post("/market/{symbol}/refresh")
-def refresh(symbol: str, demo: bool = Query(False)) -> dict[str, object]:
+def refresh(
+    symbol: str, demo: bool = Query(False), interval: str = Query("1d", pattern="^(1d|1m|5m|15m|30m|60m)$")
+) -> dict[str, object]:
     try:
-        instrument, frame, meta = market_data_service.refresh(symbol, force_demo=demo)
+        timeframe = interval.removesuffix("m") if interval.endswith("m") else "1d"
+        instrument, frame, meta = market_data_service.refresh(symbol, force_demo=demo, timeframe=timeframe)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     return {"symbol": instrument.symbol, "bar_count": len(frame), "meta": meta}

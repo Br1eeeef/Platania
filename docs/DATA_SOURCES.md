@@ -2,6 +2,14 @@
 
 ## 数据流程
 
+### 全市场目录与实时 K 线
+
+`stock_info_a_code_name` 每日同步一次 A 股标的目录到本地缓存；目录接口支持分页和代码、名称搜索。分钟 K 线支持 1、5、15、30、60 分钟周期。它们不会以全市场高频轮询方式采集：只有用户查看、自选或被运营配置为热门的标的才会由服务端按需刷新，默认缓存 90 秒。
+
+浏览器只请求 Platania API，绝不直接请求 AKShare 或其上游站点。接口响应始终包含 provider、真实/演示状态、更新时间、周期和过期警告；当刷新失败时会保留并返回最后一次成功的真实缓存，而不会将它覆盖为演示数据。
+
+可在根目录 `.env` 调整 `PLATANIA_REALTIME_CACHE_TTL_SECONDS`、`PLATANIA_REALTIME_DEFAULT_INTERVAL` 和 `PLATANIA_ON_DEMAND_LIVE_REFRESH`。收费运营前应接入具备明确商业授权的数据商；Token 仅写入服务器端 `.env`，不进入浏览器包或 Git。
+
 统一 `MarketDataProvider` 隔离外部字段：AKShare 为主，BaoStock 用于历史日线补充/回退，确定性 Demo 保证离线可运行。代码规范化为 `000001.SZ` / `600000.SH`，统一 OHLCV、成交额、停牌、复权和元数据。
 
 定时采集 → 字段转换和完整性检查 → 与 Parquet 缓存增量合并 → 指标/策略 → 会员从平台缓存读取。网页请求不会直连 AKShare 或 BaoStock。

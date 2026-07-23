@@ -48,6 +48,10 @@ async function main() {
   await page.getByRole('button', { name: '周K' }).click()
   await page.waitForLoadState('networkidle')
   assert(await page.getByRole('button', { name: '周K' }).getAttribute('class') === 'active', 'weekly K switch did not activate')
+  await page.getByRole('button', { name: '5分', exact: true }).click()
+  await page.waitForLoadState('networkidle')
+  assert(await page.getByRole('button', { name: '5分', exact: true }).getAttribute('class') === 'active', '5-minute K switch did not activate')
+  assert(await page.getByText('真实数据', { exact: false }).count() >= 1, 'live-data badge is missing after the 5-minute switch')
   await assertNoOverflow(page, 'desktop stock')
   await page.screenshot({ path: path.join(outputDir, 'desktop-stock.png'), fullPage: true })
 
