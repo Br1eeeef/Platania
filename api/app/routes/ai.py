@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from api.app.ai.compiler import compile_readable_code, evaluate_spec
+from api.app.ai.deepseek import DeepSeekError
 from api.app.ai.service import QuotaExceeded, ai_strategy_service
 from api.app.ai.spec import StrategyGenerationRequest, StrategyGenerationResponse, StrategySpec
 from api.app.backtest import BacktestEngine
@@ -39,6 +40,8 @@ def generate_strategy(
         return result
     except (UsageExceeded, QuotaExceeded) as exc:
         raise HTTPException(status_code=429, detail=str(exc)) from exc
+    except DeepSeekError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @router.post("/ai/strategy/validate")

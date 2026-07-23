@@ -7,11 +7,11 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function request<T>(path: string, init?: RequestInit, timeoutMs = 15_000): Promise<T> {
   const session = await supabase?.auth.getSession()
   const token = session?.data.session?.access_token
   const controller = new AbortController()
-  const timer = window.setTimeout(() => controller.abort(), 15_000)
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs)
   try {
     const response = await fetch(path, {
       ...init,
@@ -47,7 +47,7 @@ export const api = {
   strategies: () => request<{ items: StrategyDescriptor[] }>('/api/strategies'),
   backtest: (payload: BacktestRequest) => request<BacktestResult>('/api/backtests', { method: 'POST', body: JSON.stringify(payload) }),
   getBacktest: (id: string) => request<BacktestResult>(`/api/backtests/${id}`),
-  aiGenerate: (prompt: string) => request<{ id: string; mode: 'mock' | 'deepseek'; spec: StrategySpec; readable_code: string; daily_used: number; daily_limit: number; disclaimer: string }>('/api/ai/strategy', { method: 'POST', body: JSON.stringify({ prompt }) }),
+  aiGenerate: (prompt: string) => request<{ id: string; mode: 'mock' | 'deepseek'; spec: StrategySpec; readable_code: string; daily_used: number; daily_limit: number; disclaimer: string }>('/api/ai/strategy', { method: 'POST', body: JSON.stringify({ prompt }) }, 60_000),
   aiBacktest: (symbol: string, spec: StrategySpec) => request<BacktestResult>('/api/ai/strategy/backtest', { method: 'POST', body: JSON.stringify({ symbol, spec }) }),
   feed: () => request<{ items: FeedItem[]; is_demo: boolean }>('/api/feed'),
   me: () => request<Record<string, any>>('/api/me'),
