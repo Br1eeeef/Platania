@@ -8,6 +8,7 @@ User=platania
 Group=www-data
 WorkingDirectory=/opt/platania/current
 EnvironmentFile=/etc/platania/platania.env
+ExecStart=/opt/platania/venv/bin/python scripts/refresh_market.py --catalog
 ExecStart=/opt/platania/venv/bin/python scripts/refresh_market.py --interval 2
 Nice=10
 IOSchedulingClass=idle
@@ -16,4 +17,3 @@ PrivateTmp=true
 ReadWritePaths=/opt/platania/shared/data /var/log/platania
 StandardOutput=append:/var/log/platania/data.log
 StandardError=append:/var/log/platania/data-error.log
-
